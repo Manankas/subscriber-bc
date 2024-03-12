@@ -44,8 +44,8 @@ public class JpaSearchSubscriberRepository implements SearchSubscriberRepository
         if (subscriber.mail() != null && subscriber.mail().isBlank()) {
             predicates.add(criteriaBuilder.equal(sub.get("mail"), subscriber.mail()));
         }
-        if (subscriber.activ() != null) {
-            predicates.add(criteriaBuilder.equal(sub.get("activ"), subscriber.activ()));
+        if (subscriber.isActiv() != null) {
+            predicates.add(criteriaBuilder.equal(sub.get("isActiv"), subscriber.isActiv()));
         }
 
         query.where(predicates.toArray(new Predicate[0]));

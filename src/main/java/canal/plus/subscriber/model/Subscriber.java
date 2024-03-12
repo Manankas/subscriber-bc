@@ -17,29 +17,29 @@ import java.io.Serializable;
 public class Subscriber implements Serializable {
      @Id
      @Column(name="SUBSCRIBERID")
-     Long id;
+     private Long id;
 
      @Column(name="FNAME")
-     String firstname;
+     private String firstname;
      @Column(name="LNAME")
-     String lastname;
+     private String lastname;
 
      @Column(name="MAIL")
-     String mail;
+     private String mail;
 
      @Column(name="PHONE")
-     String phone;
+     private String phone;
 
      @Column(name="ISACTIV")
-     boolean activ;
+     private boolean isActiv;
 
-     public Subscriber(Long id, String firstname, String lastname, String mail, String phone, boolean activ) {
+     public Subscriber(Long id, String firstname, String lastname, String mail, String phone, boolean isActiv) {
           this.id = id;
           this.firstname = firstname;
           this.lastname = lastname;
           this.mail = mail;
           this.phone = phone;
-          this.activ = activ;
+          this.isActiv = isActiv;
      }
 
      public Subscriber() {
@@ -85,11 +85,11 @@ public class Subscriber implements Serializable {
           this.phone = phone;
      }
 
-     public boolean isActiv() {
-          return activ;
+     public boolean isIsActiv() {
+          return isActiv;
      }
 
-     public void setActiv(boolean activ) {
-          this.activ = activ;
+     public void setIsActiv(boolean isActiv) {
+          this.isActiv = isActiv;
      }
 }
