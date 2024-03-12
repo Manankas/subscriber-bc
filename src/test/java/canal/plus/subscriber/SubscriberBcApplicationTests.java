@@ -1,6 +1,6 @@
 package canal.plus.subscriber;
 
-import canal.plus.subscriber.dto.SubscriberDto;
+import canal.plus.subscriber.model.Subscriber;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
@@ -47,7 +47,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldReturnASubscriberWhenFirstnameCriteriaMatch() {
-		SubscriberDto subscriberToSearch = new SubscriberDto(null, "toto", "", null, null, null);
+		Subscriber subscriberToSearch = new Subscriber(null, "toto", "", null, null, null);
 		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -62,7 +62,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
-		SubscriberDto subscriberToSearch = new SubscriberDto(null, "toto", "wrongLastname", null, null, null);
+		Subscriber subscriberToSearch = new Subscriber(null, "toto", "wrongLastname", null, null, null);
 		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

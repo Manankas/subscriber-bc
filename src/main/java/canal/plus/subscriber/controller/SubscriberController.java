@@ -1,6 +1,5 @@
 package canal.plus.subscriber.controller;
 
-import canal.plus.subscriber.dto.SubscriberDto;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
@@ -32,7 +31,7 @@ public class SubscriberController {
     }
 
     @PostMapping("/search")
-    private ResponseEntity<List<Subscriber>> searchByCriteria(@RequestBody SubscriberDto subscriberToSearch) {
+    private ResponseEntity<List<Subscriber>> searchByCriteria(@RequestBody Subscriber subscriberToSearch) {
         List<Subscriber> results = searchRepository.findByCriteria(subscriberToSearch);
         return ResponseEntity.ok(results);
 

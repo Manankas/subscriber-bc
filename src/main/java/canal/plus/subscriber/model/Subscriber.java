@@ -31,9 +31,9 @@ public class Subscriber implements Serializable {
      private String phone;
 
      @Column(name="ISACTIV")
-     private boolean isActiv;
+     private Boolean isActiv;
 
-     public Subscriber(Long id, String firstname, String lastname, String mail, String phone, boolean isActiv) {
+     public Subscriber(Long id, String firstname, String lastname, String mail, String phone, Boolean isActiv) {
           this.id = id;
           this.firstname = firstname;
           this.lastname = lastname;
@@ -85,11 +85,11 @@ public class Subscriber implements Serializable {
           this.phone = phone;
      }
 
-     public boolean isIsActiv() {
+     public Boolean isIsActiv() {
           return isActiv;
      }
 
-     public void setIsActiv(boolean isActiv) {
+     public void setIsActiv(Boolean isActiv) {
           this.isActiv = isActiv;
      }
 }
