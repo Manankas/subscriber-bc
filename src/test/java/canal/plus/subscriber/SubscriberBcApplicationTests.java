@@ -1,7 +1,9 @@
 package canal.plus.subscriber;
 
+import canal.plus.subscriber.dto.SubscriberDto;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,5 +43,32 @@ class SubscriberBcApplicationTests {
 
 		assertThat(id).isEqualTo(1);
 		assertThat(firstname).isEqualTo("toto");
+	}
+
+	@Test
+	void shouldReturnASubscriberWhenFirstnameCriteriaMatch() {
+		SubscriberDto subscriberToSearch = new SubscriberDto(null, "toto", "", null, null, null);
+		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		JSONArray jsonArray = documentContext.read("$[*]");
+		assertThat(jsonArray.size()).isEqualTo(1);
+
+		int id = documentContext.read("$[0].id");
+		assertThat(id).isEqualTo(1);
+	}
+
+	@Test
+	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
+		SubscriberDto subscriberToSearch = new SubscriberDto(null, "toto", "wrongLastname", null, null, null);
+		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		JSONArray jsonArray = documentContext.read("$[*]");
+		assertThat(jsonArray.size()).isEqualTo(0);
 	}
 }

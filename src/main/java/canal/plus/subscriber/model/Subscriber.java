@@ -1,4 +1,4 @@
-package canal.plus.subscriber.entity;
+package canal.plus.subscriber.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
