@@ -94,7 +94,7 @@ class SubscriberBcApplicationTests {
 
 	//TODO use Spring validation and test all possibility
 	@Test
-	void shouldFailedCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
+	void shouldFailCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
 		Subscriber newSubscriber = new Subscriber(null, "bar", "foo@gmail.com", "12345");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
@@ -102,7 +102,7 @@ class SubscriberBcApplicationTests {
 	}
 
 	@Test
-	void shouldFailedCreatingNewSubscriberWhenASubscriberWithSameMailOrPhoneAlreadyExists() {
+	void shouldFailCreatingNewSubscriberWhenASubscriberWithSameMailOrPhoneAlreadyExists() {
 		//create new subscriber
 		Subscriber newSubscriber = new Subscriber("foo", "bar", "mail@gmail.com", "12345");
 		ResponseEntity<Void> okResponse = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
@@ -149,11 +149,41 @@ class SubscriberBcApplicationTests {
 	}
 
 	@Test
-	void shouldFailedUpdatingWhenSubscriberDoNotExists() {
+	void shouldFailToUpdateWhenSubscriberDoNotExists() {
 		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", "toto2@gmail.com", "888");
 		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
-		ResponseEntity<Void> updateResponse = restTemplate
-				.exchange("/subscribers/wrong_id", HttpMethod.PUT, request, Void.class);
+		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/wrong_id", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void shouldUnsubscribeExistingSubscriber() {
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+		//checking updated data
+		ResponseEntity<String> getResponse = restTemplate.getForEntity("/subscribers/uuid1", String.class);
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String id = documentContext.read("$.id");
+		boolean isActive = documentContext.read("$.isActiv");
+		assertThat(id).isEqualTo("uuid1");
+		assertThat(isActive).isEqualTo(false);
+	}
+
+	@Test
+	void shouldFailToUnsubscribeWhenSubscriberDoNotExists() {
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/wrong_id", HttpMethod.PUT, null, Void.class);
+		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void shouldFailToUnsubscribeWhenSubscriberIsAlreadyUnsubscribed() {
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+		ResponseEntity<Void> secondUnsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		assertThat(secondUnsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 }

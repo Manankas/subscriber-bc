@@ -13,4 +13,6 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, String> 
 
     @Query("select s from Subscriber s where (s.mail = ?1 or s.phone = ?2) and s.isActiv = ?3")
     Optional<Subscriber> findByMailOrPhoneAndIsActive(String mail, String phone, Boolean isActive);
+
+    Optional<Subscriber> findByIdAndIsActiv(String id, Boolean isActive);
 }

@@ -46,7 +46,7 @@ public class SubscriberController {
 
     @PutMapping("/{id}")
     private ResponseEntity<Void> putSubscriber(@PathVariable String id, @RequestBody Subscriber subscriberToUpdate) {
-        Optional<Subscriber> existingSubscriber = subscriberRepository.findById(id);
+        Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
             Subscriber updatedSubscriber = new Subscriber(existingSubscriber.get().getId(),
                     subscriberToUpdate.getFirstname(),
@@ -55,6 +55,18 @@ public class SubscriberController {
                     subscriberToUpdate.getPhone(),
                     existingSubscriber.get().isIsActiv());
             subscriberRepository.save(updatedSubscriber);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/unsubscribe/{id}")
+    private ResponseEntity<Void> unsubscribeSubscriber(@PathVariable String id) {
+        Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
+        if (existingSubscriber.isPresent()) {
+            final Subscriber unsubscribed = existingSubscriber.get();
+            unsubscribed.setIsActiv(false);
+            subscriberRepository.save(unsubscribed);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
