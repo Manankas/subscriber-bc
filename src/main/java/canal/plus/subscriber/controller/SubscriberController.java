@@ -44,11 +44,26 @@ public class SubscriberController {
        return subscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{id}")
+    private ResponseEntity<Void> putSubscriber(@PathVariable String id, @RequestBody Subscriber subscriberToUpdate) {
+        Optional<Subscriber> existingSubscriber = subscriberRepository.findById(id);
+        if (existingSubscriber.isPresent()) {
+            Subscriber updatedSubscriber = new Subscriber(existingSubscriber.get().getId(),
+                    subscriberToUpdate.getFirstname(),
+                    subscriberToUpdate.getLastname(),
+                    subscriberToUpdate.getMail(),
+                    subscriberToUpdate.getPhone(),
+                    existingSubscriber.get().isIsActiv());
+            subscriberRepository.save(updatedSubscriber);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping("/search")
     private ResponseEntity<List<Subscriber>> searchByCriteria(@RequestBody Subscriber subscriberToSearch) {
         List<Subscriber> results = searchRepository.findByCriteria(subscriberToSearch);
         return ResponseEntity.ok(results);
-
     }
 
 }

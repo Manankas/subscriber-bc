@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -90,6 +92,7 @@ class SubscriberBcApplicationTests {
 		assertThat(id).isNotNull();
 	}
 
+	//TODO use Spring validation and test all possibility
 	@Test
 	void shouldFailedCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
 		Subscriber newSubscriber = new Subscriber(null, "bar", "foo@gmail.com", "12345");
@@ -117,5 +120,40 @@ class SubscriberBcApplicationTests {
 		ResponseEntity<String> koResponse2 = restTemplate.postForEntity("/subscribers", newSubscriber, String.class);
 		assertThat(koResponse2.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		assertThat(koResponse2.getBody()).isEqualTo("Subscriber with these mail/phone already exists");
+	}
+
+	@Test
+	void shouldUpdatePersonalInfoOfAnExistingSubscriber() {
+		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2",  "toto2@gmail.com", "888");
+		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
+		ResponseEntity<Void> updateResponse = restTemplate
+				.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
+		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+		//checking updated data
+		ResponseEntity<String> getResponse = restTemplate.getForEntity("/subscribers/uuid1", String.class);
+
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String firstname = documentContext.read("$.firstname");
+
+
+		assertThat(firstname).isEqualTo("TOTO_2");
+
+		//checking id and isActive are not changed
+		String id = documentContext.read("$.id");
+		boolean isActive = documentContext.read("$.isActiv");
+		assertThat(id).isEqualTo("uuid1");
+		assertThat(isActive).isEqualTo(true);
+	}
+
+	@Test
+	void shouldFailedUpdatingWhenSubscriberDoNotExists() {
+		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", "toto2@gmail.com", "888");
+		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
+		ResponseEntity<Void> updateResponse = restTemplate
+				.exchange("/subscribers/wrong_id", HttpMethod.PUT, request, Void.class);
+		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 }
