@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JpaSearchSubscriberRepository implements SearchSubscriberRepository {
@@ -21,35 +22,36 @@ public class JpaSearchSubscriberRepository implements SearchSubscriberRepository
     }
 
     @Override
-    public List<Subscriber> findByCriteria(Subscriber subscriber) {
+    public Optional<Subscriber> findByCriteria(String id, String firstname, String lastname, String phone, String mail, Boolean isActive) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Subscriber> query = criteriaBuilder.createQuery(Subscriber.class);
 
         Root<Subscriber> sub = query.from(Subscriber.class);
         List<Predicate> predicates = new ArrayList<>();
 
-        if (subscriber.getId() != null) {
-            predicates.add(criteriaBuilder.equal(sub.get("id"), subscriber.getId()));
+        if (id != null) {
+            predicates.add(criteriaBuilder.equal(sub.get("id"), id));
         }
-        if (subscriber.getFirstname() != null) {
-            predicates.add(criteriaBuilder.like(sub.get("firstname"), "%" + subscriber.getFirstname() + "%"));
+        if (firstname != null && !firstname.isBlank()) {
+            predicates.add(criteriaBuilder.equal(sub.get("firstname"), firstname));
         }
-        if (subscriber.getLastname() != null) {
-            predicates.add(criteriaBuilder.like(sub.get("lastname"), "%" + subscriber.getLastname() + "%"));
+        if (lastname != null && !lastname.isBlank()) {
+            predicates.add(criteriaBuilder.equal(sub.get("lastname"), lastname));
         }
-        if (subscriber.getPhone() != null && !subscriber.getPhone().isBlank()) {
-            predicates.add(criteriaBuilder.equal(sub.get("phone"), subscriber.getPhone()));
+        if (phone != null && !phone.isBlank()) {
+            predicates.add(criteriaBuilder.equal(sub.get("phone"), phone));
         }
-        if (subscriber.getMail() != null && !subscriber.getMail().isBlank()) {
-            predicates.add(criteriaBuilder.equal(sub.get("mail"), subscriber.getMail()));
+        if (mail != null && !mail.isBlank()) {
+            predicates.add(criteriaBuilder.equal(sub.get("mail"), mail));
         }
-        if (subscriber.isIsActiv() != null) {
-            predicates.add(criteriaBuilder.equal(sub.get("isActiv"), subscriber.isIsActiv()));
+        if (isActive != null) {
+            predicates.add(criteriaBuilder.equal(sub.get("isActiv"), isActive));
         }
 
         query.where(predicates.toArray(new Predicate[0]));
 
-        return entityManager.createQuery(query).getResultList();
+        List<Subscriber> results = entityManager.createQuery(query).getResultList();
+        return Optional.ofNullable(results.isEmpty() ? null : results.get(0));
     }
 
 }

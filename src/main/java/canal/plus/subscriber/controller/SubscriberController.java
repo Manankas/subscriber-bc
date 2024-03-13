@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -72,10 +71,18 @@ public class SubscriberController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/search")
-    private ResponseEntity<List<Subscriber>> searchByCriteria(@RequestBody Subscriber subscriberToSearch) {
-        List<Subscriber> results = searchRepository.findByCriteria(subscriberToSearch);
-        return ResponseEntity.ok(results);
+    @GetMapping
+    private ResponseEntity<Subscriber> searchByCriteria(@RequestParam(required = false) String id,
+                                                        @RequestParam(required = false) String firstname,
+                                                        @RequestParam(required = false) String lastname,
+                                                        @RequestParam(required = false) String phone,
+                                                        @RequestParam(required = false) String mail,
+                                                        @RequestParam(required = false) Boolean isActive) {
+        Optional<Subscriber> existingSubscriber = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive);
+        if (existingSubscriber.isPresent()) {
+            return ResponseEntity.ok(existingSubscriber.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }
