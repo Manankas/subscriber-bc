@@ -26,7 +26,7 @@ public class SubscriberController {
     @PostMapping
     private ResponseEntity<String> createSubscriber(@RequestBody Subscriber subscriber) {
         Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.getMail(), subscriber.getPhone(), true);
-        if(!result.isPresent()) {
+        if(result.isEmpty()) {
             Subscriber savedSubscriber = subscriberRepository.save(subscriber);
             URI locationOfNewSubscriber = UriComponentsBuilder.newInstance()
                     .path("subscribers/{id}")
