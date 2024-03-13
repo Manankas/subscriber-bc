@@ -1,8 +1,8 @@
 package canal.plus.subscriber.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
@@ -17,15 +17,22 @@ import java.io.Serializable;
 public class Subscriber implements Serializable {
      @Id
      @Column(name="SUBSCRIBERID")
-     private Long id;
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private String id;
 
+     @NotNull
      @Column(name="FNAME")
      private String firstname;
+     @NotNull
      @Column(name="LNAME")
      private String lastname;
 
+     @NotNull
+     @Email
      @Column(name="MAIL")
      private String mail;
+
+     @NotNull
 
      @Column(name="PHONE")
      private String phone;
@@ -33,7 +40,17 @@ public class Subscriber implements Serializable {
      @Column(name="ISACTIV")
      private Boolean isActiv;
 
-     public Subscriber(Long id, String firstname, String lastname, String mail, String phone, Boolean isActiv) {
+
+     /*
+     * Activate subsciber on creation
+     * */
+     @PrePersist
+     void preInsert() {
+          if (this.isActiv == null)
+               this.isActiv = true;
+     }
+
+     public Subscriber(String id, String firstname, String lastname, String mail, String phone, Boolean isActiv) {
           this.id = id;
           this.firstname = firstname;
           this.lastname = lastname;
@@ -42,14 +59,29 @@ public class Subscriber implements Serializable {
           this.isActiv = isActiv;
      }
 
+     public Subscriber(String firstname, String lastname, String mail, String phone, Boolean isActiv) {
+          this.firstname = firstname;
+          this.lastname = lastname;
+          this.mail = mail;
+          this.phone = phone;
+          this.isActiv = isActiv;
+     }
+
+     public Subscriber(String firstname, String lastname, String mail, String phone) {
+          this.firstname = firstname;
+          this.lastname = lastname;
+          this.mail = mail;
+          this.phone = phone;
+     }
+
      public Subscriber() {
      }
 
-     public Long getId() {
+     public String getId() {
           return id;
      }
 
-     public void setId(Long id) {
+     public void setId(String id) {
           this.id = id;
      }
 

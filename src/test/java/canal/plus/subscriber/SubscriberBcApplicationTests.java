@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)  //start our Spring Boot application
@@ -32,22 +34,22 @@ class SubscriberBcApplicationTests {
 	}
 
 	@Test
-	void shouldReturnASubscriberWhenDataIsSaved() {
-		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/1", String.class);
+	void shouldReturnASubscriberWhenDataIsSavedAndSearchingById() {
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/uuid1", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
-		Number id = documentContext.read("$.id");
+		String id = documentContext.read("$.id");
 		String firstname = documentContext.read("$.firstname");
 
-		assertThat(id).isEqualTo(1);
+		assertThat(id).isEqualTo("uuid1");
 		assertThat(firstname).isEqualTo("toto");
 	}
 
 	@Test
 	void shouldReturnASubscriberWhenFirstnameCriteriaMatch() {
-		Subscriber subscriberToSearch = new Subscriber(null, "toto", "", null, null, null);
+		Subscriber subscriberToSearch = new Subscriber("toto", "", null, null, null);
 		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -56,13 +58,13 @@ class SubscriberBcApplicationTests {
 		JSONArray jsonArray = documentContext.read("$[*]");
 		assertThat(jsonArray.size()).isEqualTo(1);
 
-		int id = documentContext.read("$[0].id");
-		assertThat(id).isEqualTo(1);
+		String id = documentContext.read("$[0].id");
+		assertThat(id).isEqualTo("uuid1");
 	}
 
 	@Test
 	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
-		Subscriber subscriberToSearch = new Subscriber(null, "toto", "wrongLastname", null, null, null);
+		Subscriber subscriberToSearch = new Subscriber("toto", "wrongLastname", null, null, null);
 		ResponseEntity<String> response = restTemplate.postForEntity("/subscribers/search", subscriberToSearch, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -70,5 +72,22 @@ class SubscriberBcApplicationTests {
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
 		JSONArray jsonArray = documentContext.read("$[*]");
 		assertThat(jsonArray.size()).isEqualTo(0);
+	}
+
+	@Test
+	void shouldCreateANewSubsciberWithGeneretedID() {
+		Subscriber newSubscriber = new Subscriber("foo", "bar", "foo@gmail.com", "123");
+		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+		//check that the subscriber is well saved and new ID is generated
+
+		URI locationOfNewSubscriber = response.getHeaders().getLocation();
+		ResponseEntity<String> getResponse = restTemplate.getForEntity("/"+locationOfNewSubscriber.getPath(), String.class);
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+		String id = documentContext.read("$.id");
+		assertThat(id).isNotNull();
 	}
 }
