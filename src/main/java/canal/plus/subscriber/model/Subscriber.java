@@ -2,6 +2,7 @@ package canal.plus.subscriber.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
@@ -20,20 +21,19 @@ public class Subscriber implements Serializable {
      @GeneratedValue(strategy = GenerationType.UUID)
      private String id;
 
-     @NotNull
+     @NotBlank(message = "Firstname is mandatory")
      @Column(name="FNAME")
      private String firstname;
-     @NotNull
+     @NotBlank(message = "Lastname is mandatory")
      @Column(name="LNAME")
      private String lastname;
 
-     @NotNull
      @Email
+     @NotBlank(message = "Email is mandatory")
      @Column(name="MAIL")
      private String mail;
 
-     @NotNull
-
+     @NotBlank(message = "Phone number is mandatory")
      @Column(name="PHONE")
      private String phone;
 

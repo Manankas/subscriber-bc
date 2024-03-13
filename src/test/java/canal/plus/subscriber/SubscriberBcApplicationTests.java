@@ -92,13 +92,13 @@ class SubscriberBcApplicationTests {
 		assertThat(id).isNotNull();
 	}
 
-	//TODO use Spring validation and test all possibility
+	//TODO use Spring validator and test all possibility --> https://www.baeldung.com/spring-boot-bean-validation
 	@Test
 	void shouldFailCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
 		Subscriber newSubscriber = new Subscriber(null, "bar", "foo@gmail.com", "12345");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
 	@Test

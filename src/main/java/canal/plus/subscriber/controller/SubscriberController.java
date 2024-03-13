@@ -3,6 +3,7 @@ package canal.plus.subscriber.controller;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class SubscriberController {
     }
 
     @PostMapping
-    private ResponseEntity<String> createSubscriber(@RequestBody Subscriber subscriber) {
+    private ResponseEntity<String> createSubscriber(@Valid @RequestBody Subscriber subscriber) {
         Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.getMail(), subscriber.getPhone(), true);
         if(result.isEmpty()) {
             Subscriber savedSubscriber = subscriberRepository.save(subscriber);
