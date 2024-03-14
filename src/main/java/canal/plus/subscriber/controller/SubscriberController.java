@@ -6,10 +6,14 @@ import canal.plus.subscriber.repository.SubscriberRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,7 +38,7 @@ public class SubscriberController {
                     .toUri();
             return ResponseEntity.created(locationOfNewSubscriber).build();
         }
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Subscriber with these mail/phone already exists");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Subscriber with these mail or phone already exists");
 
     }
 
@@ -45,10 +49,17 @@ public class SubscriberController {
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<Void> putSubscriber(@PathVariable String id, @RequestBody Subscriber subscriberToUpdate) {
+    private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody Subscriber subscriberToUpdate) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
-            Subscriber updatedSubscriber = new Subscriber(existingSubscriber.get().getId(),
+
+            //check if new value of mail or phone is already assigned to another subscriber
+            Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriberToUpdate.getMail(), subscriberToUpdate.getPhone(), true);
+            if(result.isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Subscriber with these mail or phone already exists");
+            }
+
+            final Subscriber updatedSubscriber = new Subscriber(existingSubscriber.get().getId(),
                     subscriberToUpdate.getFirstname(),
                     subscriberToUpdate.getLastname(),
                     subscriberToUpdate.getMail(),
@@ -80,10 +91,19 @@ public class SubscriberController {
                                                         @RequestParam(required = false) String mail,
                                                         @RequestParam(required = false) Boolean isActive) {
         Optional<Subscriber> existingSubscriber = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive);
-        if (existingSubscriber.isPresent()) {
-            return ResponseEntity.ok(existingSubscriber.get());
-        }
-        return ResponseEntity.notFound().build();
+        return existingSubscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 
 }

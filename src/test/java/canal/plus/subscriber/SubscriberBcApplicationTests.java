@@ -5,6 +5,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -92,7 +93,6 @@ class SubscriberBcApplicationTests {
 		assertThat(id).isNotNull();
 	}
 
-	//TODO use Spring validator and test all possibility --> https://www.baeldung.com/spring-boot-bean-validation
 	@Test
 	void shouldFailCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
 		Subscriber newSubscriber = new Subscriber(null, "bar", "foo@gmail.com", "12345");
@@ -113,13 +113,13 @@ class SubscriberBcApplicationTests {
 		newSubscriber = new Subscriber("abc", "def", "mail@gmail.com", "99999");
 		ResponseEntity<String> koResponse1 = restTemplate.postForEntity("/subscribers", newSubscriber, String.class);
 		assertThat(koResponse1.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-		assertThat(koResponse1.getBody()).isEqualTo("Subscriber with these mail/phone already exists");
+		assertThat(koResponse1.getBody()).isEqualTo("Subscriber with these mail or phone already exists");
 
 		// create new subscriber with same phone
 		newSubscriber = new Subscriber("xxx", "yyy", "new@gmail.com", "12345");
 		ResponseEntity<String> koResponse2 = restTemplate.postForEntity("/subscribers", newSubscriber, String.class);
 		assertThat(koResponse2.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-		assertThat(koResponse2.getBody()).isEqualTo("Subscriber with these mail/phone already exists");
+		assertThat(koResponse2.getBody()).isEqualTo("Subscriber with these mail or phone already exists");
 	}
 
 	@Test
@@ -150,10 +150,30 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldFailToUpdateWhenSubscriberDoNotExists() {
-		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", "toto2@gmail.com", "888");
+		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", "toto2@gmail.com", "+888");
 		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/wrong_id", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@ParameterizedTest
+	@NullSource
+	@ValueSource(strings = {"", "  ","mailWithWrongFormat"})
+	void shouldFailToUpdateSubscriberWhenMailIsInvalid(String invalidMail) {
+		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", invalidMail, "888");
+		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
+		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
+		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@ParameterizedTest
+	@NullSource
+	@ValueSource(strings = {"", "  ","888x", "x888", "ABC"})
+	void shouldFailToUpdateSubscriberWhenPhoneIsInvalid(String phone) {
+		Subscriber subscriberToUpdate = new Subscriber("TOTO_2", "TITI_2", "toto2@gmail.com", phone);
+		HttpEntity<Subscriber> request = new HttpEntity<>(subscriberToUpdate);
+		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
+		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
 	@Test

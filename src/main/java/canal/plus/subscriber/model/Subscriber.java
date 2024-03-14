@@ -3,7 +3,8 @@ package canal.plus.subscriber.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 
@@ -34,6 +35,8 @@ public class Subscriber implements Serializable {
      private String mail;
 
      @NotBlank(message = "Phone number is mandatory")
+     @Size(min = 3, max = 15, message = "Phone number should have at least 3 or less than 17 digits")
+     @Pattern(regexp = "[+]?\\d*",  message = "Only + and numeric digits are authorized for phone number")
      @Column(name="PHONE")
      private String phone;
 
@@ -42,7 +45,7 @@ public class Subscriber implements Serializable {
 
 
      /*
-     * Activate subsciber on creation
+     * By default, activate subscriber on creation
      * */
      @PrePersist
      void preInsert() {
