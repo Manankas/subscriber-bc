@@ -4,6 +4,7 @@ import canal.plus.subscriber.dto.SubscriberPersonalInfoDto;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class SubscriberController {
         this.searchRepository = searchRepository;
     }
 
+    @Operation(summary = "Create subscriber with his personal information. ID is automatically generated")
     @PostMapping
     private ResponseEntity<String> createSubscriber(@Valid @RequestBody SubscriberPersonalInfoDto subscriber) {
         Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.mail(), subscriber.phone(), true);
@@ -49,13 +51,14 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Subscriber with these mail or phone already exists");
 
     }
-
+   @Operation(summary = "Get a subscriber by his id")
    @GetMapping("/{id}")
     private ResponseEntity<Subscriber> findById(@PathVariable String id) {
         Optional<Subscriber> subscriber = subscriberRepository.findById(id);
        return subscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Update subscriber")
     @PutMapping("/{id}")
     private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody SubscriberPersonalInfoDto subscriberToUpdate) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
@@ -79,6 +82,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
+    @Operation(summary = "Unsubscribe subscriber")
     @DeleteMapping("/{id}")
     private ResponseEntity<String> unsubscribeSubscriber(@PathVariable String id) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
@@ -91,6 +95,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
+    @Operation(summary = "Search subscriber by some criterias")
     @GetMapping("/search")
     private ResponseEntity<Subscriber> searchByCriteria(@RequestParam(required = false) String id,
                                                         @RequestParam(required = false) String firstname,
@@ -102,6 +107,7 @@ public class SubscriberController {
         return existingSubscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Get all existing subscribers")
     @GetMapping
     private ResponseEntity<List<Subscriber>> findAll() {
         List<Subscriber> results = subscriberRepository.findAll();

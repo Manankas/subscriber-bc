@@ -1,10 +1,7 @@
 package canal.plus.subscriber.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -16,7 +13,7 @@ import java.io.Serializable;
 * */
 
 @Entity
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Data @NoArgsConstructor @AllArgsConstructor
 public class Subscriber implements Serializable {
      @Id
      @Column(name="SUBSCRIBERID")
@@ -25,6 +22,7 @@ public class Subscriber implements Serializable {
 
      @Column(name="FNAME")
      private String firstname;
+
      @Column(name="LNAME")
      private String lastname;
 
