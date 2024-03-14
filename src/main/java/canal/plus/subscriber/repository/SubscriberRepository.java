@@ -11,6 +11,9 @@ import java.util.UUID;
 @Repository
 public interface SubscriberRepository extends JpaRepository<Subscriber, String> {
 
+    @Query("select s from Subscriber s where s.id != ?1 and (s.mail = ?2 or s.phone = ?3) and s.isActiv = true")
+    Optional<Subscriber> findOtherActiveSubscriberByMailOrPhone(String id, String mail, String phone);
+
     @Query("select s from Subscriber s where (s.mail = ?1 or s.phone = ?2) and s.isActiv = ?3")
     Optional<Subscriber> findByMailOrPhoneAndIsActive(String mail, String phone, Boolean isActive);
 

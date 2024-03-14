@@ -1,5 +1,6 @@
 package canal.plus.subscriber.controller;
 
+import canal.plus.subscriber.dto.SubscriberPersonalInfoDto;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
@@ -29,10 +30,16 @@ public class SubscriberController {
     }
 
     @PostMapping
-    private ResponseEntity<String> createSubscriber(@Valid @RequestBody Subscriber subscriber) {
-        Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.getMail(), subscriber.getPhone(), true);
+    private ResponseEntity<String> createSubscriber(@Valid @RequestBody SubscriberPersonalInfoDto subscriber) {
+        Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.mail(), subscriber.phone(), true);
         if(result.isEmpty()) {
-            Subscriber savedSubscriber = subscriberRepository.save(subscriber);
+            final Subscriber newSubscriber = new Subscriber(null,
+                                                                subscriber.firstname(),
+                                                                subscriber.lastname(),
+                                                                subscriber.mail(),
+                                                                subscriber.phone(),
+                                                                true );
+            Subscriber savedSubscriber = subscriberRepository.save(newSubscriber);
             URI locationOfNewSubscriber = UriComponentsBuilder.newInstance()
                     .path("subscribers/{id}")
                     .buildAndExpand(savedSubscriber.getId())
@@ -50,21 +57,21 @@ public class SubscriberController {
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody Subscriber subscriberToUpdate) {
+    private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody SubscriberPersonalInfoDto subscriberToUpdate) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
 
             //check if new value of mail or phone is already assigned to another subscriber
-            Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriberToUpdate.getMail(), subscriberToUpdate.getPhone(), true);
+            Optional<Subscriber> result = subscriberRepository.findOtherActiveSubscriberByMailOrPhone(id, subscriberToUpdate.mail(), subscriberToUpdate.phone());
             if(result.isPresent()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Subscriber with these mail or phone already exists");
             }
 
             final Subscriber updatedSubscriber = new Subscriber(existingSubscriber.get().getId(),
-                    subscriberToUpdate.getFirstname(),
-                    subscriberToUpdate.getLastname(),
-                    subscriberToUpdate.getMail(),
-                    subscriberToUpdate.getPhone(),
+                    subscriberToUpdate.firstname(),
+                    subscriberToUpdate.lastname(),
+                    subscriberToUpdate.mail(),
+                    subscriberToUpdate.phone(),
                     existingSubscriber.get().isIsActiv());
             subscriberRepository.save(updatedSubscriber);
             return ResponseEntity.noContent().build();
