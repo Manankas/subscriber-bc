@@ -78,7 +78,7 @@ class SubscriberBcApplicationTests {
 	}
 
 	@Test
-	void shouldCreateANewSubscriberWithGeneratedID() {
+	void shouldCreateANewSubscriberWithGeneratedIDAndActiveByDefault() {
 		SubscriberPersonalInfoDto newSubscriber = new SubscriberPersonalInfoDto("foo", "bar", "foo@gmail.com", "12345");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
@@ -89,8 +89,14 @@ class SubscriberBcApplicationTests {
 		ResponseEntity<String> getResponse = restTemplate.getForEntity("/"+locationOfNewSubscriber.getPath(), String.class);
 		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 		DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+
 		String id = documentContext.read("$.id");
+		boolean isActive = documentContext.read("$.isActiv");
+		String firstname = documentContext.read("$.firstname");
+
 		assertThat(id).isNotNull();
+		assertThat(isActive).isEqualTo(true);
+		assertThat(firstname).isEqualTo("foo");
 	}
 
 	@Test
@@ -174,6 +180,27 @@ class SubscriberBcApplicationTests {
 		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void shouldFailToUpdateMailWhenItIsAlreadyUsedByAnotherActiveSubscriber() {
+		final String USED_MAIL = "foo@gmail.com";
+
+		//create new subscriber
+		SubscriberPersonalInfoDto firstSubscriber = new SubscriberPersonalInfoDto("foo", "bar", USED_MAIL, "12345");
+		restTemplate.postForEntity("/subscribers", firstSubscriber, Void.class);
+
+		//create another subscriber
+		SubscriberPersonalInfoDto secondSubscriber = new SubscriberPersonalInfoDto("foo2", "bar2", "foo2@gmail.com", "56789");
+		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", secondSubscriber, Void.class);
+		URI locationOfNewSubscriber = response.getHeaders().getLocation();
+
+		// update second subscriber
+		SubscriberPersonalInfoDto secondSubscriberWithUsedMail = new SubscriberPersonalInfoDto("foo2", "bar2", USED_MAIL, "56789");
+		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(secondSubscriberWithUsedMail);
+		ResponseEntity<String> updateResponse = restTemplate.exchange("/"+locationOfNewSubscriber.getPath(), HttpMethod.PUT, request, String.class);
+		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+		assertThat(updateResponse.getBody()).isEqualTo("Subscriber with these mail or phone already exists");
 	}
 
 	@Test

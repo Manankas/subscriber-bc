@@ -72,7 +72,7 @@ public class SubscriberController {
                     subscriberToUpdate.lastname(),
                     subscriberToUpdate.mail(),
                     subscriberToUpdate.phone(),
-                    existingSubscriber.get().isIsActiv());
+                    existingSubscriber.get().getIsActiv());
             subscriberRepository.save(updatedSubscriber);
             return ResponseEntity.noContent().build();
         }
