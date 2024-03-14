@@ -13,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,7 +72,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @PutMapping("/unsubscribe/{id}")
+    @DeleteMapping("/{id}")
     private ResponseEntity<String> unsubscribeSubscriber(@PathVariable String id) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
@@ -83,7 +84,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @GetMapping
+    @GetMapping("/search")
     private ResponseEntity<Subscriber> searchByCriteria(@RequestParam(required = false) String id,
                                                         @RequestParam(required = false) String firstname,
                                                         @RequestParam(required = false) String lastname,
@@ -92,6 +93,12 @@ public class SubscriberController {
                                                         @RequestParam(required = false) Boolean isActive) {
         Optional<Subscriber> existingSubscriber = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive);
         return existingSubscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    private ResponseEntity<List<Subscriber>> findAll() {
+        List<Subscriber> results = subscriberRepository.findAll();
+        return ResponseEntity.ok(results);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

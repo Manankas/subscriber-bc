@@ -58,7 +58,7 @@ class SubscriberBcApplicationTests {
 							"mail=toto@gmail.com&phone=123",
 							"phone=123&isActive=true"})
 	void shouldReturnASubscriberWhenCriteriaMatch(String criteria) {
-		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers?" + criteria, String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/search?" + criteria, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -72,7 +72,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
-		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers?firstname=wrongLastname", String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/search?firstname=wrongLastname", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -178,7 +178,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldUnsubscribeExistingSubscriber() {
-		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.DELETE, null, Void.class);
 		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		//checking updated data
@@ -194,16 +194,16 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldFailToUnsubscribeWhenSubscriberDoNotExists() {
-		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/wrong_id", HttpMethod.PUT, null, Void.class);
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/wrong_id", HttpMethod.DELETE, null, Void.class);
 		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 
 	@Test
 	void shouldFailToUnsubscribeWhenSubscriberIsAlreadyUnsubscribed() {
-		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.DELETE, null, Void.class);
 		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-		ResponseEntity<Void> secondUnsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
+		ResponseEntity<Void> secondUnsubscriptionResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.DELETE, null, Void.class);
 		assertThat(secondUnsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
 }
