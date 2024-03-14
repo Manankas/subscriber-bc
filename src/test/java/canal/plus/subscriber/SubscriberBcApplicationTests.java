@@ -179,7 +179,7 @@ class SubscriberBcApplicationTests {
 	@Test
 	void shouldUnsubscribeExistingSubscriber() {
 		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
-		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		//checking updated data
 		ResponseEntity<String> getResponse = restTemplate.getForEntity("/subscribers/uuid1", String.class);
@@ -201,7 +201,7 @@ class SubscriberBcApplicationTests {
 	@Test
 	void shouldFailToUnsubscribeWhenSubscriberIsAlreadyUnsubscribed() {
 		ResponseEntity<Void> unsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
-		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+		assertThat(unsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		ResponseEntity<Void> secondUnsubscriptionResponse = restTemplate.exchange("/subscribers/unsubscribe/uuid1", HttpMethod.PUT, null, Void.class);
 		assertThat(secondUnsubscriptionResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

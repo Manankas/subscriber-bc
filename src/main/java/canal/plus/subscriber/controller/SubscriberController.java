@@ -68,19 +68,19 @@ public class SubscriberController {
             subscriberRepository.save(updatedSubscriber);
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
     @PutMapping("/unsubscribe/{id}")
-    private ResponseEntity<Void> unsubscribeSubscriber(@PathVariable String id) {
+    private ResponseEntity<String> unsubscribeSubscriber(@PathVariable String id) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
             final Subscriber unsubscribed = existingSubscriber.get();
             unsubscribed.setIsActiv(false);
             subscriberRepository.save(unsubscribed);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.OK).body("Unsubscription successful");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
     @GetMapping
