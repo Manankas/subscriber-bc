@@ -6,6 +6,10 @@ import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -95,7 +99,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @Operation(summary = "Search subscriber by some criterias")
+    @Operation(summary = "Search subscriber by some criteria from request parameter")
     @GetMapping("/search")
     private ResponseEntity<Subscriber> searchByCriteria(@RequestParam(required = false) String id,
                                                         @RequestParam(required = false) String firstname,
@@ -107,11 +111,15 @@ public class SubscriberController {
         return existingSubscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Get all existing subscribers")
+    @Operation(summary = "Get all existing subscribers. It can be paginated by sending page, size and sort in request parameter")
     @GetMapping
-    private ResponseEntity<List<Subscriber>> findAll() {
-        List<Subscriber> results = subscriberRepository.findAll();
-        return ResponseEntity.ok(results);
+    private ResponseEntity<List<Subscriber>> findAll(Pageable pageable) {
+        Page<Subscriber> results = subscriberRepository.findAll(PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "firstname"))
+        ));
+        return ResponseEntity.ok(results.getContent());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
