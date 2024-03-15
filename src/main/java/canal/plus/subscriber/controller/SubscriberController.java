@@ -30,7 +30,7 @@ public class SubscriberController {
         this.searchRepository = searchRepository;
     }
 
-    @Operation(summary = "Create subscriber with his personal information. ID is automatically generated")
+    @Operation(summary = "Create new subscriber with his personal information. ID is automatically generated and new subscriber is active by default")
     @PostMapping
     private ResponseEntity<String> createSubscriber(@Valid @RequestBody SubscriberPersonalInfo subscriber) {
         Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.mail(), subscriber.phone(), true);
@@ -58,7 +58,7 @@ public class SubscriberController {
        return subscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Update subscriber")
+    @Operation(summary = "Update subscriber's personal info.")
     @PutMapping("/{id}")
     private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody SubscriberPersonalInfo subscriberToUpdate) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
@@ -82,7 +82,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @Operation(summary = "Unsubscribe subscriber")
+    @Operation(summary = "Unsubscribe subscriber. This is a soft delete")
     @DeleteMapping("/{id}")
     private ResponseEntity<String> unsubscribeSubscriber(@PathVariable String id) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
