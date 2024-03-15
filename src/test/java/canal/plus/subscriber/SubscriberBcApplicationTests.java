@@ -1,6 +1,6 @@
 package canal.plus.subscriber;
 
-import canal.plus.subscriber.dto.SubscriberPersonalInfoDto;
+import canal.plus.subscriber.dto.SubscriberPersonalInfo;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldCreateANewSubscriberWithGeneratedIDAndActiveByDefault() {
-		SubscriberPersonalInfoDto newSubscriber = new SubscriberPersonalInfoDto("foo", "bar", "foo@gmail.com", "12345");
+		SubscriberPersonalInfo newSubscriber = new SubscriberPersonalInfo("foo", "bar", "foo@gmail.com", "12345");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -101,7 +101,7 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldFailCreatingNewSubscriberWhenPersonalInformationIsNotComplete() {
-		SubscriberPersonalInfoDto newSubscriber = new SubscriberPersonalInfoDto(null, "bar", "foo@gmail.com", "12345");
+		SubscriberPersonalInfo newSubscriber = new SubscriberPersonalInfo(null, "bar", "foo@gmail.com", "12345");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -110,19 +110,19 @@ class SubscriberBcApplicationTests {
 	@Test
 	void shouldFailCreatingNewSubscriberWhenASubscriberWithSameMailOrPhoneAlreadyExists() {
 		//create new subscriber
-		SubscriberPersonalInfoDto newSubscriber = new SubscriberPersonalInfoDto("foo", "bar", "mail@gmail.com", "12345");
+		SubscriberPersonalInfo newSubscriber = new SubscriberPersonalInfo("foo", "bar", "mail@gmail.com", "12345");
 		ResponseEntity<Void> okResponse = restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
 
 		assertThat(okResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
 		// create new subscriber with same mail
-		newSubscriber = new SubscriberPersonalInfoDto("abc", "def", "mail@gmail.com", "99999");
+		newSubscriber = new SubscriberPersonalInfo("abc", "def", "mail@gmail.com", "99999");
 		ResponseEntity<String> koResponse1 = restTemplate.postForEntity("/subscribers", newSubscriber, String.class);
 		assertThat(koResponse1.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		assertThat(koResponse1.getBody()).isEqualTo("Subscriber with these mail or phone already exists");
 
 		// create new subscriber with same phone
-		newSubscriber = new SubscriberPersonalInfoDto("xxx", "yyy", "new@gmail.com", "12345");
+		newSubscriber = new SubscriberPersonalInfo("xxx", "yyy", "new@gmail.com", "12345");
 		ResponseEntity<String> koResponse2 = restTemplate.postForEntity("/subscribers", newSubscriber, String.class);
 		assertThat(koResponse2.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		assertThat(koResponse2.getBody()).isEqualTo("Subscriber with these mail or phone already exists");
@@ -130,8 +130,8 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldUpdatePersonalInfoOfAnExistingSubscriber() {
-		SubscriberPersonalInfoDto subscriberToUpdate = new SubscriberPersonalInfoDto("TOTO_2", "TITI_2",  "toto2@gmail.com", "888");
-		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(subscriberToUpdate);
+		SubscriberPersonalInfo subscriberToUpdate = new SubscriberPersonalInfo("TOTO_2", "TITI_2",  "toto2@gmail.com", "888");
+		HttpEntity<SubscriberPersonalInfo> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate
 				.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -156,8 +156,8 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldFailToUpdateWhenSubscriberDoNotExists() {
-		SubscriberPersonalInfoDto subscriberToUpdate = new SubscriberPersonalInfoDto("TOTO_2", "TITI_2", "toto2@gmail.com", "+888");
-		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(subscriberToUpdate);
+		SubscriberPersonalInfo subscriberToUpdate = new SubscriberPersonalInfo("TOTO_2", "TITI_2", "toto2@gmail.com", "+888");
+		HttpEntity<SubscriberPersonalInfo> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/wrong_id", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 	}
@@ -166,8 +166,8 @@ class SubscriberBcApplicationTests {
 	@NullSource
 	@ValueSource(strings = {"", "  ","mailWithWrongFormat"})
 	void shouldFailToUpdateSubscriberWhenMailIsInvalid(String invalidMail) {
-		SubscriberPersonalInfoDto subscriberToUpdate = new SubscriberPersonalInfoDto("TOTO_2", "TITI_2", invalidMail, "888");
-		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(subscriberToUpdate);
+		SubscriberPersonalInfo subscriberToUpdate = new SubscriberPersonalInfo("TOTO_2", "TITI_2", invalidMail, "888");
+		HttpEntity<SubscriberPersonalInfo> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
@@ -176,8 +176,8 @@ class SubscriberBcApplicationTests {
 	@NullSource
 	@ValueSource(strings = {"", "  ","888x", "x888", "ABC"})
 	void shouldFailToUpdateSubscriberWhenPhoneIsInvalid(String phone) {
-		SubscriberPersonalInfoDto subscriberToUpdate = new SubscriberPersonalInfoDto("TOTO_2", "TITI_2", "toto2@gmail.com", phone);
-		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(subscriberToUpdate);
+		SubscriberPersonalInfo subscriberToUpdate = new SubscriberPersonalInfo("TOTO_2", "TITI_2", "toto2@gmail.com", phone);
+		HttpEntity<SubscriberPersonalInfo> request = new HttpEntity<>(subscriberToUpdate);
 		ResponseEntity<Void> updateResponse = restTemplate.exchange("/subscribers/uuid1", HttpMethod.PUT, request, Void.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
@@ -187,17 +187,17 @@ class SubscriberBcApplicationTests {
 		final String USED_MAIL = "foo@gmail.com";
 
 		//create new subscriber
-		SubscriberPersonalInfoDto firstSubscriber = new SubscriberPersonalInfoDto("foo", "bar", USED_MAIL, "12345");
+		SubscriberPersonalInfo firstSubscriber = new SubscriberPersonalInfo("foo", "bar", USED_MAIL, "12345");
 		restTemplate.postForEntity("/subscribers", firstSubscriber, Void.class);
 
 		//create another subscriber
-		SubscriberPersonalInfoDto secondSubscriber = new SubscriberPersonalInfoDto("foo2", "bar2", "foo2@gmail.com", "56789");
+		SubscriberPersonalInfo secondSubscriber = new SubscriberPersonalInfo("foo2", "bar2", "foo2@gmail.com", "56789");
 		ResponseEntity<Void> response = restTemplate.postForEntity("/subscribers", secondSubscriber, Void.class);
 		URI locationOfNewSubscriber = response.getHeaders().getLocation();
 
 		// update second subscriber
-		SubscriberPersonalInfoDto secondSubscriberWithUsedMail = new SubscriberPersonalInfoDto("foo2", "bar2", USED_MAIL, "56789");
-		HttpEntity<SubscriberPersonalInfoDto> request = new HttpEntity<>(secondSubscriberWithUsedMail);
+		SubscriberPersonalInfo secondSubscriberWithUsedMail = new SubscriberPersonalInfo("foo2", "bar2", USED_MAIL, "56789");
+		HttpEntity<SubscriberPersonalInfo> request = new HttpEntity<>(secondSubscriberWithUsedMail);
 		ResponseEntity<String> updateResponse = restTemplate.exchange("/"+locationOfNewSubscriber.getPath(), HttpMethod.PUT, request, String.class);
 		assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		assertThat(updateResponse.getBody()).isEqualTo("Subscriber with these mail or phone already exists");

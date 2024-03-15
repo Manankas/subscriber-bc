@@ -1,6 +1,6 @@
 package canal.plus.subscriber.controller;
 
-import canal.plus.subscriber.dto.SubscriberPersonalInfoDto;
+import canal.plus.subscriber.dto.SubscriberPersonalInfo;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
@@ -32,7 +32,7 @@ public class SubscriberController {
 
     @Operation(summary = "Create subscriber with his personal information. ID is automatically generated")
     @PostMapping
-    private ResponseEntity<String> createSubscriber(@Valid @RequestBody SubscriberPersonalInfoDto subscriber) {
+    private ResponseEntity<String> createSubscriber(@Valid @RequestBody SubscriberPersonalInfo subscriber) {
         Optional<Subscriber> result = subscriberRepository.findByMailOrPhoneAndIsActive(subscriber.mail(), subscriber.phone(), true);
         if(result.isEmpty()) {
             final Subscriber newSubscriber = new Subscriber(null,
@@ -60,7 +60,7 @@ public class SubscriberController {
 
     @Operation(summary = "Update subscriber")
     @PutMapping("/{id}")
-    private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody SubscriberPersonalInfoDto subscriberToUpdate) {
+    private ResponseEntity<String> updateSubscriber(@PathVariable String id, @Valid @RequestBody SubscriberPersonalInfo subscriberToUpdate) {
         Optional<Subscriber> existingSubscriber = subscriberRepository.findByIdAndIsActiv(id, true);
         if (existingSubscriber.isPresent()) {
 
