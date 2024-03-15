@@ -1,6 +1,7 @@
 package canal.plus.subscriber.controller;
 
 import canal.plus.subscriber.dto.SubscriberPersonalInfo;
+import canal.plus.subscriber.exception.NotValidSearchCriteriaException;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
@@ -99,7 +100,7 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @Operation(summary = "Search subscriber by some criteria from request parameter")
+    @Operation(summary = "Search subscriber by some criteria from request parameter, at least one criteria parameter is required")
     @GetMapping("/search")
     private ResponseEntity<Subscriber> searchByCriteria(@RequestParam(required = false) String id,
                                                         @RequestParam(required = false) String firstname,
@@ -107,6 +108,7 @@ public class SubscriberController {
                                                         @RequestParam(required = false) String phone,
                                                         @RequestParam(required = false) String mail,
                                                         @RequestParam(required = false) Boolean isActive) {
+        validateCriteria(id, firstname, lastname, phone, mail, isActive);
         Optional<Subscriber> existingSubscriber = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive);
         return existingSubscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -132,6 +134,21 @@ public class SubscriberController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NotValidSearchCriteriaException.class)
+    public Map<String, String> handleCriteriaValidationExceptions(NotValidSearchCriteriaException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("Error", ex.getMessage());
+        errors.put("Criteria parameter", "id, firstname, lastname, phone, mail, isActive ");
+        return errors;
+    }
+
+    private void validateCriteria(String id, String firstname, String lastname, String phone, String mail, Boolean isActive) {
+        if(id == null && firstname == null && lastname == null && phone == null && mail == null && isActive == null){
+            throw new NotValidSearchCriteriaException("No criteria is defined, at least one criteria parameter is required");
+        }
     }
 
 }
