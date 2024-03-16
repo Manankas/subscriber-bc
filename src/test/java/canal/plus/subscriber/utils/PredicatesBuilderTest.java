@@ -23,7 +23,7 @@ public class PredicatesBuilderTest {
     }
 
     @Test
-    public void shouldBuilderPredicateWithAllParameters() {
+    public void shouldBuildPredicateWithAllParameters() {
         String id = "1";
         String firstname = "John";
         String lastname = "Doe";
@@ -43,7 +43,7 @@ public class PredicatesBuilderTest {
     }
 
     @Test
-    public void shouldBuilderPredicateWithOnlyGivenParameters() {
+    public void shouldBuildPredicateWithOnlyGivenParameters() {
         String id = "1";
         String firstname = "John";
 
