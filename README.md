@@ -40,10 +40,10 @@ L'application se base sur Java 17, spring-boot 3 et maven avec un packaging **.j
 > 3. Un nouveau abonné est actif par défaut
 > 4. On ne peut pas créer un abonné inactif (résilié)
 > 5. Si un abonné **actif** avec le même email ou téléphone existe déjà, la création échoue et le retour du service doit permettre de le savoir
-> #### ➢ Un endpoint permet de récupérer un ou des abonnés  :dart:
+> #### ➢ Un endpoint permet de récupérer un ou plusieurs abonnés  :dart:
 > 1.  N’importe quel critère de recherche peut être utilisé  
 > 2.  Les critères de recherche sont envoyés dans l'url  
-  Exemple : http://localhost:8080/subscribers/search?firstname=toto&lastname=titi 
+  Exemple : http://localhost:8080/subscribers?firstname=toto&lastname=titi 
 > 3.  Si aucun critère n'est passé, tous les abonnés sont retournés selon la pagination voulue  
   Exemple : http://localhost:8080/subscribers?page=0&size=2&sort=firstname,desc
 > #### ➢ Un endpoint permet de « résilier » un abonné :dart:
