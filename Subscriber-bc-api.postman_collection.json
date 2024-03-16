@@ -122,15 +122,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/subscribers/search?id=uuid1&firstname=toto&lastname=titi&mail=toto@gmail.com&phone=123",
+					"raw": "http://localhost:8080/subscribers?id=uuid1&firstname=toto&lastname=titi&mail=toto@gmail.com&phone=123",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"subscribers",
-						"search"
+						"subscribers"
 					],
 					"query": [
 						{

@@ -3,6 +3,7 @@ package canal.plus.subscriber;
 import canal.plus.subscriber.dto.SubscriberPersonalInfo;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
@@ -58,13 +59,16 @@ class SubscriberBcApplicationTests {
 							"mail=toto@gmail.com&phone=123",
 							"phone=123&isActive=true"})
 	void shouldReturnASubscriberWhenCriteriaMatch(String criteria) {
-		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/search?" + criteria, String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers?" + criteria, String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
-		String id = documentContext.read("$.id");
-		String firstname = documentContext.read("$.firstname");
+		JSONArray jsonArray = documentContext.read("$[*]");
+		assertThat(jsonArray.size()).isEqualTo(1);
+
+		String id = documentContext.read("$[0].id");
+		String firstname = documentContext.read("$[0].firstname");
 
 		assertThat(id).isEqualTo("uuid1");
 		assertThat(firstname).isEqualTo("toto");
@@ -72,9 +76,12 @@ class SubscriberBcApplicationTests {
 
 	@Test
 	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
-		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers/search?firstname=wrongLastname", String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers?firstname=wrongLastname", String.class);
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		JSONArray jsonArray = documentContext.read("$[*]");
+		assertThat(jsonArray.size()).isEqualTo(0);
 	}
 
 	@Test

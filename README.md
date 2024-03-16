@@ -40,11 +40,12 @@ L'application se base sur Java 17, spring-boot 3 et maven avec un packaging **.j
 > 3. Un nouveau abonné est actif par défaut
 > 4. On ne peut pas créer un abonné inactif (résilié)
 > 5. Si un abonné **actif** avec le même email ou téléphone existe déjà, la création échoue et le retour du service doit permettre de le savoir
-> #### ➢ Un endpoint permet de récupérer un abonné  :dart:
+> #### ➢ Un endpoint permet de récupérer un ou des abonnés  :dart:
 > 1.  N’importe quel critère de recherche peut être utilisé  
 > 2.  Les critères de recherche sont envoyés dans l'url  
   Exemple : http://localhost:8080/subscribers/search?firstname=toto&lastname=titi 
-> 3. Au moins un critère doit être fourni  
+> 3.  Si aucun critère n'est passé, tous les abonnés sont retournés selon la pagination voulue  
+  Exemple : http://localhost:8080/subscribers?page=0&size=2&sort=firstname,desc
 > #### ➢ Un endpoint permet de « résilier » un abonné :dart:
 > 1. L’abonné doit être désactivé mais pas supprimé, il s'agit ici d'un "soft delete" 
 > 2. Pas de résiliation pour un abonné qui est déjà résilié
@@ -52,8 +53,8 @@ L'application se base sur Java 17, spring-boot 3 et maven avec un packaging **.j
 > 1. Seules les données personnelles peuvent être modifiées
 > 2. Les données fournies sont soumises à des validations (Ex : le mail doit être valide)
 > 3. On ne peut pas mettre à jour un abonné en lui attribuant les mêmes mail ou phone d'un autre abonnés existant actif
-> #### ➢ Un endpoint permet de récupérer tous les abonnées avec une pagination (BONUS) :thumbsup:  
-> #### ➢ Un endpoint permet de récupérer via son ID pour ne pas passer par le search avec critère (BONUS) :thumbsup:
+
+> #### ➢ Un endpoint permet de récupérer via son ID pour ne pas passer par la recherche avec critère (BONUS) :thumbsup:
 
 ### Piste d'amélioration :
 - Soustraire les logiques métier du controller pour les mettre dans une couche service dédiée
