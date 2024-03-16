@@ -73,6 +73,21 @@ public class SubscriberBcApplicationTests {
 		assertThat(id).isEqualTo("uuid1");
 		assertThat(firstname).isEqualTo("toto");
 	}
+	@Test
+	void shouldReturnAllSubscribersWhenNoCriteriaGiven() {
+		//Add another subscriber
+		SubscriberPersonalInfo newSubscriber = new SubscriberPersonalInfo("foo", "bar", "foo@gmail.com", "12345");
+		restTemplate.postForEntity("/subscribers", newSubscriber, Void.class);
+
+		//find All
+		ResponseEntity<String> response = restTemplate.getForEntity("/subscribers", String.class);
+
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		JSONArray jsonArray = documentContext.read("$[*]");
+		assertThat(jsonArray.size()).isEqualTo(2);
+	}
 
 	@Test
 	void shouldReturnEmptyListWhenCriteriaDoNotMatch() {
