@@ -6,10 +6,7 @@ import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -99,8 +96,8 @@ public class SubscriberController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This subscriber does not exist or is not active");
     }
 
-    @Operation(summary = """ 
-                        Search for a subscriber based on certain criteria in the request parameter. 
+    @Operation(summary = """
+                        Search for a subscriber based on certain criteria in the request parameter.
                         If no parameters are given, it returns all subscribers.
                         It can be paginated by sending page, size and sort in the request parameter
                         """)
@@ -115,15 +112,6 @@ public class SubscriberController {
 
         List<Subscriber> results = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive, pageable);
         return ResponseEntity.ok(results);
-    }
-
-    private ResponseEntity<List<Subscriber>> findAll(Pageable pageable) {
-        Page<Subscriber> results = subscriberRepository.findAll(PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "firstname"))
-        ));
-        return ResponseEntity.ok(results.getContent());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
