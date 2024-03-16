@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)  //start our Spring Boot application
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // For each test case, force Spring to start with a clean slate
-class SubscriberBcApplicationTests {
+public class SubscriberBcApplicationTests {
 
 	@Autowired
 	TestRestTemplate restTemplate;  //allow us to make HTTP requests
