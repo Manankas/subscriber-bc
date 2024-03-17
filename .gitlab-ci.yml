@@ -1,0 +1,27 @@
+image: maven:3.8.3-openjdk-17
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+stages:
+  - compilation
+  - test
+
+cache:
+  paths:
+    - .m2/repository/
+
+compile_job:
+  stage: compilation
+  script:
+    - mvn compile
+  artifacts:
+    paths:
+      - target/
+
+
+test_job:
+  stage: test
+  script:
+    - mvn test
+  needs: ["compile_job"]

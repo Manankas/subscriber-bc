@@ -54,7 +54,8 @@ L'application se base sur Java 17, spring-boot 3 et maven avec un packaging **.j
 > 2. Les données fournies sont soumises à des validations (Ex : le mail doit être valide)
 > 3. On ne peut pas mettre à jour un abonné en lui attribuant les mêmes mail ou phone d'un autre abonnés existant actif
 
-> #### ➢ Un endpoint permet de récupérer via son ID pour ne pas passer par la recherche avec critère (BONUS) :thumbsup:
+> #### ➢ Un endpoint permet de récupérer via son ID pour ne pas passer par la recherche avec critère (BONUS) :thumbsup:  
+> #### ➢ CI pour Gitlab (BONUS) :thumbsup:
 
 ### Piste d'amélioration :
 - Soustraire les logiques métier du controller pour les mettre dans une couche service dédiée
