@@ -2,7 +2,6 @@ package canal.plus.subscriber.controller;
 
 import canal.plus.subscriber.dto.SubscriberPersonalInfo;
 import canal.plus.subscriber.model.Subscriber;
-import canal.plus.subscriber.repository.SearchSubscriberRepository;
 import canal.plus.subscriber.repository.SubscriberRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -24,11 +23,9 @@ import java.util.Optional;
 @RequestMapping("/subscribers")
 public class SubscriberController {
     private final SubscriberRepository subscriberRepository;
-    private final SearchSubscriberRepository searchRepository;
 
-    public SubscriberController(SubscriberRepository subscriberRepository, SearchSubscriberRepository searchRepository) {
+    public SubscriberController(SubscriberRepository subscriberRepository) {
         this.subscriberRepository = subscriberRepository;
-        this.searchRepository = searchRepository;
     }
 
     @Operation(summary = "Create new subscriber with his personal information. ID is automatically generated and new subscriber is active by default")
@@ -110,7 +107,7 @@ public class SubscriberController {
                                                               @RequestParam(required = false) Boolean isActive,
                                                               Pageable pageable) {
 
-        List<Subscriber> results = searchRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive, pageable);
+        List<Subscriber> results = subscriberRepository.findByCriteria(id, firstname, lastname, phone, mail, isActive, pageable);
         return ResponseEntity.ok(results);
     }
 
