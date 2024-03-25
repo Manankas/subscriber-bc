@@ -1,5 +1,6 @@
 package canal.plus.subscriber.controller;
 
+import canal.plus.subscriber.exception.SubscriberNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,5 +23,11 @@ public class ControllerExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(SubscriberNotFoundException.class)
+    public String handleNotFoundExceptions(SubscriberNotFoundException ex) {
+        return ex.getMessage();
     }
 }

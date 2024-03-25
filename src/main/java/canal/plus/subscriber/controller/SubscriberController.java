@@ -1,6 +1,7 @@
 package canal.plus.subscriber.controller;
 
 import canal.plus.subscriber.dto.SubscriberPersonalInfo;
+import canal.plus.subscriber.exception.SubscriberNotFoundException;
 import canal.plus.subscriber.model.Subscriber;
 import canal.plus.subscriber.repository.SubscriberRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +50,7 @@ public class SubscriberController {
    @GetMapping("/{id}")
     private ResponseEntity<Subscriber> findById(@PathVariable String id) {
         Optional<Subscriber> subscriber = subscriberRepository.findById(id);
-       return subscriber.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+       return subscriber.map(ResponseEntity::ok).orElseThrow(() -> new SubscriberNotFoundException("This subscriber does not exist or is not active"));
     }
 
     @Operation(summary = "Update subscriber's personal info.")
